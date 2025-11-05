@@ -62,8 +62,7 @@ type KeyMap = Map<
     }
 >;
 
-const buildKeyMap = (fields: FieldsConfig, initialMap?: KeyMap): KeyMap => {
-  let map = initialMap;
+const buildKeyMap = (fields: FieldsConfig, map?: KeyMap): KeyMap => {
   if (!map) {
     map = new Map();
   }

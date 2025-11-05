@@ -42,6 +42,12 @@ export default defineConfig({
       access: 'isAuthenticated',
       routes: [
         {
+          name: 'Preset Themes',
+          path: '/system-settings/preset-themes',
+          component: './SystemSettings/PresetThemes',
+          access: 'isAuthenticated',
+        },
+        {
           name: 'Admins',
           path: '/system-settings/admins',
           component: './SystemSettings/Admins',

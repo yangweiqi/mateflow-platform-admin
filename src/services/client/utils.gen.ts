@@ -24,9 +24,6 @@ export const createQuerySerializer = <T = unknown>({
     const search: string[] = [];
     if (queryParams && typeof queryParams === 'object') {
       for (const name in queryParams) {
-        if (!Object.prototype.hasOwnProperty.call(queryParams, name)) {
-          continue;
-        }
         const value = queryParams[name];
 
         if (value === undefined || value === null) {
@@ -171,6 +168,27 @@ export const setAuthParams = async ({
   }
 };
 
+export const buildUrl: Client['buildUrl'] = (options) =>
+  getUrl({
+    baseUrl: options.baseUrl as string,
+    path: options.path,
+    query: options.query,
+    querySerializer:
+      typeof options.querySerializer === 'function'
+        ? options.querySerializer
+        : createQuerySerializer(options.querySerializer),
+    url: options.url,
+  });
+
+export const mergeConfigs = (a: Config, b: Config): Config => {
+  const config = { ...a, ...b };
+  if (config.baseUrl?.endsWith('/')) {
+    config.baseUrl = config.baseUrl.substring(0, config.baseUrl.length - 1);
+  }
+  config.headers = mergeHeaders(a.headers, b.headers);
+  return config;
+};
+
 const headersEntries = (headers: Headers): Array<[string, string]> => {
   const entries: Array<[string, string]> = [];
   headers.forEach((value, key) => {
@@ -211,27 +229,6 @@ export const mergeHeaders = (
     }
   }
   return mergedHeaders;
-};
-
-export const buildUrl: Client['buildUrl'] = (options) =>
-  getUrl({
-    baseUrl: options.baseUrl as string,
-    path: options.path,
-    query: options.query,
-    querySerializer:
-      typeof options.querySerializer === 'function'
-        ? options.querySerializer
-        : createQuerySerializer(options.querySerializer),
-    url: options.url,
-  });
-
-export const mergeConfigs = (a: Config, b: Config): Config => {
-  const config = { ...a, ...b };
-  if (config.baseUrl?.endsWith('/')) {
-    config.baseUrl = config.baseUrl.substring(0, config.baseUrl.length - 1);
-  }
-  config.headers = mergeHeaders(a.headers, b.headers);
-  return config;
 };
 
 type ErrInterceptor<Err, Res, Req, Options> = (

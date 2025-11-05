@@ -66,24 +66,6 @@ export const separatorObjectExplode = (style: ObjectSeparatorStyle) => {
   }
 };
 
-export const serializePrimitiveParam = ({
-  allowReserved,
-  name,
-  value,
-}: SerializePrimitiveParam) => {
-  if (value === undefined || value === null) {
-    return '';
-  }
-
-  if (typeof value === 'object') {
-    throw new Error(
-      'Deeply-nested arrays/objects aren’t supported. Provide your own `querySerializer()` to handle these.',
-    );
-  }
-
-  return `${name}=${allowReserved ? value : encodeURIComponent(value)}`;
-};
-
 export const serializeArrayParam = ({
   allowReserved,
   explode,
@@ -126,6 +108,24 @@ export const serializeArrayParam = ({
   return style === 'label' || style === 'matrix'
     ? separator + joinedValues
     : joinedValues;
+};
+
+export const serializePrimitiveParam = ({
+  allowReserved,
+  name,
+  value,
+}: SerializePrimitiveParam) => {
+  if (value === undefined || value === null) {
+    return '';
+  }
+
+  if (typeof value === 'object') {
+    throw new Error(
+      'Deeply-nested arrays/objects aren’t supported. Provide your own `querySerializer()` to handle these.',
+    );
+  }
+
+  return `${name}=${allowReserved ? value : encodeURIComponent(value)}`;
 };
 
 export const serializeObjectParam = ({

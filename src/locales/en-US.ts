@@ -4,4 +4,5 @@ export default {
   'menu.Settings': 'Settings',
   'menu.System Settings': 'System Settings',
   'menu.System Settings.Admins': 'Admin',
+  'menu.System Settings.Preset Themes': 'Preset Themes',
 };
