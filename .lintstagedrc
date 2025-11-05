@@ -10,8 +10,11 @@
     "max lint --fix --stylelint-only",
     "prettier --cache --write"
   ],
-  "*.ts?(x)": [
+  "!(src/services/**/*)*.ts?(x)": [
     "max lint --fix --eslint-only",
+    "prettier --cache --parser=typescript --write"
+  ],
+  "src/services/**/*.ts?(x)": [
     "prettier --cache --parser=typescript --write"
   ]
 }

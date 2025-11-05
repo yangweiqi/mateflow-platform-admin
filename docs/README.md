@@ -2,6 +2,11 @@
 
 Welcome to the complete authentication system documentation for MateFlow Platform Admin.
 
+## ⚠️ Important Note
+
+**CSRF Token Functionality Removed** (November 5, 2025)  
+CSRF token functionality has been removed from the project as it is currently unnecessary. See [CSRF_REMOVAL_NOTE.md](./CSRF_REMOVAL_NOTE.md) for details. Documentation files may contain outdated references to CSRF functionality - please disregard these sections.
+
 ## 📚 Documentation Index
 
 ### 🌟 Start Here

@@ -6,6 +6,33 @@
     "version": "0.0.1"
   },
   "paths": {
+    "/platform_admin_api/v1/account/change_password": {
+      "post": {
+        "tags": ["AccountService"],
+        "operationId": "AccountService_ChangePassword",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangePasswordReqBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseMsgRespBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/platform_admin_api/v1/account/me": {
       "post": {
         "tags": ["AccountService"],
@@ -73,6 +100,33 @@
       "post": {
         "tags": ["AccountService"],
         "operationId": "AccountService_SignOut",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseMsgRespBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/platform_admin_api/v1/account/update_profile": {
+      "post": {
+        "tags": ["AccountService"],
+        "operationId": "AccountService_UpdateProfile",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateProfileReqBody"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Successful response",
@@ -395,6 +449,17 @@
           }
         }
       },
+      "ChangePasswordReqBody": {
+        "type": "object",
+        "properties": {
+          "old_password": {
+            "type": "string"
+          },
+          "new_password": {
+            "type": "string"
+          }
+        }
+      },
       "CreatePresetThemeReqBody": {
         "type": "object",
         "properties": {
@@ -505,7 +570,7 @@
       "IDReqBody": {
         "type": "object",
         "properties": {
-          "id,required": {
+          "id": {
             "type": "string"
           }
         }
@@ -578,6 +643,12 @@
           "page_size": {
             "type": "integer",
             "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
           }
         }
       },
@@ -650,9 +721,6 @@
             "type": "string"
           },
           "device_fingerprint": {
-            "type": "string"
-          },
-          "csrf_token": {
             "type": "string"
           }
         }
@@ -880,6 +948,17 @@
           },
           "published": {
             "type": "boolean"
+          }
+        }
+      },
+      "UpdateProfileReqBody": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
           }
         }
       },

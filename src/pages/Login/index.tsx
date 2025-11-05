@@ -1,7 +1,6 @@
 import logo from '@/assets/logo.png';
 import PasswordStrengthIndicator from '@/components/PasswordStrengthIndicator';
 import { getCaptchaProvider, isCaptchaInitialized } from '@/utils/captcha';
-import { getCSRFToken } from '@/utils/csrf';
 import { getDeviceFingerprint } from '@/utils/deviceFingerprint';
 import { LoginRateLimiter } from '@/utils/rateLimiter';
 import { LockOutlined, MailOutlined, SafetyOutlined } from '@ant-design/icons';
@@ -11,7 +10,7 @@ import { useEffect, useRef, useState } from 'react';
 import styles from './index.less';
 
 export default function LoginPage() {
-  const { signIn, loading, currentUser } = useModel('auth');
+  const { signIn, loading } = useModel('auth');
   const { initialState, setInitialState } = useModel('@@initialState');
   const [form] = Form.useForm();
   const [isLocked, setIsLocked] = useState(false);
@@ -104,31 +103,22 @@ export default function LoginPage() {
       // Continue without device fingerprint if it fails
     }
 
-    // Get CSRF token
-    const csrfToken = getCSRFToken();
-
     // Attempt sign in with security features
-    const success = await signIn(
+    const userInfo = await signIn(
       {
         email,
         password,
         captcha_token: captchaToken,
         device_fingerprint: deviceFingerprint,
-        csrf_token: csrfToken,
       },
       rememberMe,
     );
 
-    if (success) {
+    if (userInfo) {
       // Update initialState with user info (includes admin info from auth model)
       await setInitialState({
         ...initialState,
-        currentUser: currentUser || {
-          email,
-          token:
-            (await import('@/utils/auth').then((mod) => mod.getToken())) ||
-            undefined,
-        },
+        currentUser: userInfo,
       });
 
       // Navigate to home page

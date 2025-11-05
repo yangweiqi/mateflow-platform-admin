@@ -1,7 +1,7 @@
 /**
  * API Configuration
  *
- * This file configures the OpenAPI client with the base URL from environment variables.
+ * This file configures the @hey-api/openapi-ts client with the base URL from environment variables.
  * It also configures request/response interceptors to match Umi's request configuration.
  *
  * Environment Variables:
@@ -10,9 +10,8 @@
  * Note: In Umi, environment variables must be prefixed with UMI_APP_ to be accessible in the browser.
  */
 
-import { OpenAPI } from '@/services';
+import { client } from '@/services/client.gen';
 import { getToken } from '@/utils/auth';
-import { getCSRFToken } from '@/utils/csrf';
 import { SessionSecurityManager } from '@/utils/sessionSecurity';
 
 // Get API base URL from environment variable or use default
@@ -20,35 +19,21 @@ export const API_BASE_URL =
   process.env.UMI_APP_API_BASE_URL || 'http://localhost:8080';
 
 /**
- * Initialize the OpenAPI configuration
+ * Initialize the API client configuration
  * This should be called at app startup
  */
 export function initializeApiConfig() {
   // Set the base URL for all API calls
-  OpenAPI.BASE = API_BASE_URL;
+  client.setConfig({
+    baseUrl: API_BASE_URL,
+  });
 
-  // Configure credentials
-  OpenAPI.WITH_CREDENTIALS = true;
-  OpenAPI.CREDENTIALS = 'include';
-
-  // Configure token resolver to dynamically get token from storage
-  // This matches Umi's request interceptor behavior
-  OpenAPI.TOKEN = async () => {
+  // Add request interceptor for authentication and session tracking
+  client.interceptors.request.use(async (request) => {
+    // Get token and add to headers
     const token = getToken();
-    return token || '';
-  };
-
-  // Configure additional headers to include CSRF token for non-GET requests
-  // This matches Umi's request interceptor behavior
-  OpenAPI.HEADERS = async (options) => {
-    const headers: Record<string, string> = {};
-
-    // Add CSRF token for non-GET requests (matching Umi interceptor)
-    if (options.method && options.method.toUpperCase() !== 'GET') {
-      const csrfToken = getCSRFToken();
-      if (csrfToken) {
-        headers['X-CSRF-Token'] = csrfToken;
-      }
+    if (token) {
+      request.headers.set('Authorization', `Bearer ${token}`);
     }
 
     // Update session activity (matching Umi interceptor)
@@ -58,21 +43,31 @@ export function initializeApiConfig() {
       console.error('Failed to update session activity:', error);
     }
 
-    return headers;
-  };
+    return request;
+  });
+
+  // Add response interceptor for error handling
+  client.interceptors.response.use(async (response) => {
+    // You can add custom response handling here if needed
+    return response;
+  });
+
+  console.log(`[API Config] Initialized with base URL: ${API_BASE_URL}`);
 }
 
 /**
  * Update the API base URL dynamically (if needed)
  */
 export function setApiBaseUrl(url: string) {
-  OpenAPI.BASE = url;
-  console.log(`[API Config] Base URL updated to: ${OpenAPI.BASE}`);
+  client.setConfig({
+    baseUrl: url,
+  });
+  console.log(`[API Config] Base URL updated to: ${url}`);
 }
 
 /**
  * Get the current API base URL
  */
 export function getApiBaseUrl(): string {
-  return OpenAPI.BASE;
+  return client.getConfig().baseUrl || API_BASE_URL;
 }

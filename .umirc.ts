@@ -34,17 +34,39 @@ export default defineConfig({
       component: './Home',
       access: 'isAuthenticated',
     },
+    // System settings
+    // submenu: Super Admin
+    {
+      name: 'System Settings',
+      path: '/system-settings',
+      access: 'isAuthenticated',
+      routes: [
+        {
+          name: 'Admins',
+          path: '/system-settings/admins',
+          component: './SystemSettings/Admins',
+          access: 'isAuthenticated',
+        },
+      ],
+    },
     {
       name: 'Access',
       path: '/access',
       component: './Access',
       access: 'isAuthenticated',
     },
+    // {
+    //   name: 'CRUD Demo',
+    //   path: '/table',
+    //   component: './Table',
+    //   access: 'isAuthenticated',
+    // },
     {
-      name: 'CRUD Demo',
-      path: '/table',
-      component: './Table',
+      name: 'Settings',
+      path: '/settings',
+      component: './Settings',
       access: 'isAuthenticated',
+      hideInMenu: true,
     },
   ],
   npmClient: 'pnpm',

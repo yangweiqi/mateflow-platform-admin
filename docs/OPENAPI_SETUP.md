@@ -2,38 +2,56 @@
 
 ## What Was Done
 
-The OpenAPI code generation has been successfully configured for your Umi 4 / @umijs/max project.
+The OpenAPI code generation has been successfully configured for your Umi 4 / @umijs/max project using **@hey-api/openapi-ts**.
 
 ### Changes Made
 
-1. **Installed `openapi-typescript-codegen`** - A tool that generates TypeScript API clients from OpenAPI specifications
+1. **Installed `@hey-api/openapi-ts`** - A modern, actively maintained tool that generates TypeScript API clients from OpenAPI specifications
 
    - Added to `devDependencies` in `package.json`
+   - Removed the deprecated `openapi-typescript-codegen` package
 
-2. **Updated npm script** - Modified the `openapi` script in `package.json` to use the new tool:
+2. **Created configuration file** - Added `openapi-ts.config.ts` at the project root:
 
-   ```json
-   "openapi": "openapi --input ./openapi.json --output ./src/services --client fetch"
+   ```typescript
+   import { defineConfig } from '@hey-api/openapi-ts';
+
+   export default defineConfig({
+     client: '@hey-api/client-fetch',
+     input: './openapi.json',
+     output: {
+       format: 'prettier',
+       path: './src/services',
+     },
+     services: {
+       asClass: true,
+     },
+   });
    ```
 
-3. **Generated API Services** - Created TypeScript API client code in `src/services/`:
-   - `services/` - Service classes for each API endpoint group
-     - `AccountServiceService.ts` - Authentication endpoints
-     - `SuperAdminServiceService.ts` - Super admin management
-     - `PresetThemeServiceService.ts` - Theme management
-   - `models/` - TypeScript types for all request/response bodies
-   - `core/` - Core API infrastructure (request handler, error types, etc.)
+3. **Updated npm script** - Modified the `openapi` script in `package.json`:
+
+   ```json
+   "openapi": "openapi-ts"
+   ```
+
+4. **Generated API Services** - Created TypeScript API client code in `src/services/`:
+   - `sdk.gen.ts` - Generated API functions for all endpoints
+   - `types.gen.ts` - TypeScript types for all request/response bodies
+   - `client.gen.ts` - Configured client instance
+   - `client/` - Core client infrastructure (interceptors, serializers, etc.)
+   - `core/` - Core utilities (auth, body serializers, etc.)
    - `index.ts` - Main export file
-   - `README.md` - Documentation on how to use the generated code
 
-### Why Not @umijs/plugin-openapi?
+### Why @hey-api/openapi-ts?
 
-The `@umijs/plugin-openapi` package only works with Umi 3.x. Since your project uses Umi 4.x / @umijs/max 4.5.3, we used `openapi-typescript-codegen` instead, which:
+We chose `@hey-api/openapi-ts` because:
 
-- Works with any framework
-- Generates clean, type-safe TypeScript code
-- Provides the same functionality
-- Is actively maintained
+- **Modern & Actively Maintained** - Latest OpenAPI 3.x support with regular updates
+- **Better TypeScript Support** - Improved type inference and type safety
+- **Flexible Architecture** - Function-based API with customizable client
+- **Advanced Features** - Built-in interceptors, better error handling, SSE support
+- **Framework Agnostic** - Works with any JavaScript/TypeScript framework
 
 ## How to Use
 
@@ -78,13 +96,20 @@ For more details, see [ENV_SETUP.md](../ENV_SETUP.md)
 ### 3. Use the Generated Services
 
 ```typescript
-import { AccountServiceService } from '@/services';
+import { accountServiceSignInByEmail } from '@/services';
 
 // Example: Sign in
-const response = await AccountServiceService.accountServiceSignInByEmail({
-  email: 'admin@example.com',
-  password: 'password123',
+const response = await accountServiceSignInByEmail({
+  body: {
+    email: 'admin@example.com',
+    password: 'password123',
+  },
 });
+
+// Access the response data
+if (response.data?.code === 0) {
+  console.log('Login successful:', response.data.data);
+}
 ```
 
 ## Documentation

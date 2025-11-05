@@ -1,0 +1,15 @@
+# Auto-generated files
+src/services/
+
+# Build output
+dist/
+.umi/
+.umi-production/
+.umi-test/
+
+# Dependencies
+node_modules/
+
+# MFSU cache
+.mfsu/
+

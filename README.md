@@ -73,7 +73,7 @@ pnpm build
 - **API Client**: Auto-generated from OpenAPI spec using [openapi-typescript-codegen](https://github.com/ferdikoomen/openapi-typescript-codegen)
 - **State Management**: Umi Model
 - **Authentication**: JWT with refresh token support
-- **Security**: CAPTCHA (Cloudflare Turnstile), CSRF protection, rate limiting
+- **Security**: CAPTCHA (Cloudflare Turnstile), rate limiting, session management
 
 ## 📁 Project Structure
 

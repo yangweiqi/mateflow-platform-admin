@@ -57,6 +57,8 @@ function MyComponent() {
 
 ## Manually Refresh Admin Info
 
+### Option 1: Fetch Only (No State Update)
+
 ```typescript
 import { useModel } from '@umijs/max';
 
@@ -64,13 +66,48 @@ function MyComponent() {
   const { fetchAdminMe } = useModel('auth');
 
   const handleRefresh = async () => {
+    // Just fetch data, doesn't update currentUser state
     const adminInfo = await fetchAdminMe();
     console.log('Updated admin info:', adminInfo);
+  };
+
+  return <button onClick={handleRefresh}>Log Profile</button>;
+}
+```
+
+### Option 2: Fetch and Update State
+
+```typescript
+import { useModel } from '@umijs/max';
+
+function MyComponent() {
+  const { fetchAdminMe } = useModel('auth');
+  const { initialState, setInitialState } = useModel('@@initialState');
+
+  const handleRefresh = async () => {
+    // Fetch and update auth model state
+    const adminInfo = await fetchAdminMe(true);
+
+    // Also update global state for consistency
+    if (adminInfo) {
+      setInitialState({
+        ...initialState,
+        currentUser: {
+          ...initialState?.currentUser,
+          adminInfo,
+        },
+      });
+    }
   };
 
   return <button onClick={handleRefresh}>Refresh Profile</button>;
 }
 ```
+
+**Parameters:**
+
+- `fetchAdminMe()` - Fetches admin info, returns data (default)
+- `fetchAdminMe(true)` - Fetches admin info, updates auth model state, returns data
 
 ## When is Admin Info Fetched?
 

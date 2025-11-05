@@ -1,9 +1,13 @@
 /**
  * Authentication state management model with advanced features
  */
-import { AccountServiceService } from '@/services';
-import type { SignInByEmailReqBody } from '@/services/models/SignInByEmailReqBody';
-import type { SuperAdminInfo } from '@/services/models/SuperAdminInfo';
+import type { SignInByEmailReqBody, SuperAdminInfo } from '@/services';
+import {
+  accountServiceGetAdminMe,
+  accountServiceRefreshToken,
+  accountServiceSignInByEmail,
+  accountServiceSignOut,
+} from '@/services';
 import {
   clearAuth,
   getRememberMe,
@@ -69,19 +73,19 @@ export default function useAuthModel() {
   const refreshToken = async () => {
     try {
       // Call refresh endpoint - it will use the current token from Authorization header
-      const response = await AccountServiceService.accountServiceRefreshToken();
+      const response = await accountServiceRefreshToken();
 
-      if (response.code === 0 && response.data?.token) {
+      if (response.data?.code === 0 && response.data?.data?.token) {
         // Store new access token
-        setToken(response.data.token, response.data.expires_at);
+        setToken(response.data.data.token, response.data.data.expires_at);
 
         // Update current user with new token
         setCurrentUser((prev) => ({
           ...prev,
-          token: response.data?.token,
+          token: response.data?.data?.token,
         }));
 
-        return response.data.token;
+        return response.data.data.token;
       }
       return null;
     } catch (error) {
@@ -102,7 +106,7 @@ export default function useAuthModel() {
     try {
       if (revokeToken) {
         // Call API to revoke token on server
-        await AccountServiceService.accountServiceSignOut();
+        await accountServiceSignOut();
       }
 
       // Stop all timers
@@ -197,18 +201,29 @@ export default function useAuthModel() {
 
   /**
    * Fetch current admin user information
+   * @param updateState - Whether to update the currentUser state (default: false for backward compatibility)
    */
-  const fetchAdminMe = async () => {
+  const fetchAdminMe = async (updateState: boolean = false) => {
     try {
-      const response = await AccountServiceService.accountServiceGetAdminMe();
+      const response = await accountServiceGetAdminMe();
 
-      if (response.code === 0 && response.data) {
-        return response.data;
+      if (response.data?.code === 0 && response.data?.data) {
+        const adminInfo = response.data.data;
+
+        // Update currentUser state if requested
+        if (updateState) {
+          setCurrentUser((prev) => ({
+            ...prev,
+            adminInfo,
+          }));
+        }
+
+        return adminInfo;
       }
       return null;
     } catch (error: any) {
       console.error('Fetch admin info error:', error);
-      // Note: Error handling (401, 403, etc.) is done by OpenAPI error catching
+      // Note: Error handling (401, 403, etc.) is done by the client error interceptor
       // or can be wrapped with apiResponseHandler if needed
       return null;
     }
@@ -216,11 +231,12 @@ export default function useAuthModel() {
 
   /**
    * Sign in with email and password
+   * @returns CurrentUser object on success, false on failure
    */
   const signIn = async (
     credentials: SignInByEmailReqBody,
     rememberMe: boolean = false,
-  ) => {
+  ): Promise<CurrentUser | false> => {
     setLoading(true);
 
     // Log login attempt
@@ -232,11 +248,11 @@ export default function useAuthModel() {
     }
 
     try {
-      const response = await AccountServiceService.accountServiceSignInByEmail(
-        credentials,
-      );
+      const response = await accountServiceSignInByEmail({
+        body: credentials,
+      });
 
-      if (response.data?.token) {
+      if (response.data?.data?.token) {
         // Clear rate limiting on successful login
         if (credentials.email) {
           LoginRateLimiter.clearAttempts(credentials.email);
@@ -244,7 +260,7 @@ export default function useAuthModel() {
         }
 
         // Store access token with expiration if provided
-        setToken(response.data.token, response.data.expires_at);
+        setToken(response.data.data.token, response.data.data.expires_at);
 
         // Store user email for persistence
         if (credentials.email) {
@@ -264,28 +280,31 @@ export default function useAuthModel() {
         // Fetch admin info after successful login
         const adminInfo = await fetchAdminMe();
 
-        // Update current user state
-        setCurrentUser({
+        // Create user object
+        const userInfo: CurrentUser = {
           email: credentials.email,
-          token: response.data.token,
+          token: response.data.data.token,
           adminInfo: adminInfo || undefined,
-        });
+        };
+
+        // Update current user state
+        setCurrentUser(userInfo);
 
         // Start automatic refresh and session monitoring
         startAutoRefresh();
         startSessionMonitoring();
 
         message.success('Login successful!');
-        return true;
+        return userInfo;
       } else {
         // Log failed login
         if (credentials.email) {
           SecurityAuditLogger.logLoginFailure(
             credentials.email,
-            response.msg || 'Invalid credentials',
+            response.data?.msg || 'Invalid credentials',
           );
         }
-        message.error(response.msg || 'Login failed');
+        message.error(response.data?.msg || 'Login failed');
         return false;
       }
     } catch (error: any) {
@@ -295,11 +314,11 @@ export default function useAuthModel() {
       if (credentials.email) {
         SecurityAuditLogger.logLoginFailure(
           credentials.email,
-          error?.body?.msg || error?.message || 'Unknown error',
+          error?.msg || error?.message || 'Unknown error',
         );
       }
 
-      message.error(error?.body?.msg || error?.message || 'Login failed');
+      message.error(error?.msg || error?.message || 'Login failed');
       return false;
     } finally {
       setLoading(false);

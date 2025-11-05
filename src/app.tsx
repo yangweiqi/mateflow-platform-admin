@@ -2,11 +2,12 @@
 import logo from '@/assets/logo.png';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import LayoutWrapper from '@/components/LayoutWrapper';
-import { AccountServiceService } from '@/services';
-import { LogoutOutlined } from '@ant-design/icons';
+import { accountServiceGetAdminMe } from '@/services';
+import { LogoutOutlined, SettingOutlined } from '@ant-design/icons';
 import type { RequestConfig, RunTimeLayoutConfig } from '@umijs/max';
 import { history } from '@umijs/max';
-import { App as AntdApp, message } from 'antd';
+import type { MenuProps } from 'antd';
+import { App as AntdApp, Avatar, Dropdown, message } from 'antd';
 import React from 'react';
 import { initializeApiConfig } from './config/api';
 import {
@@ -16,7 +17,6 @@ import {
   isAuthenticated,
 } from './utils/auth';
 import { initCaptcha } from './utils/captcha';
-import { setCSRFToken } from './utils/csrf';
 import {
   SessionActivityTracker,
   SessionSecurityManager,
@@ -52,9 +52,6 @@ if (typeof window !== 'undefined') {
     process.env.UMI_APP_CAPTCHA_SITE_KEY ||
     'mock';
   initCaptcha(TURNSTILE_SITE_KEY);
-
-  // Initialize CSRF token
-  setCSRFToken();
 
   // Configure session security
   SessionSecurityManager.configure({
@@ -108,10 +105,9 @@ export async function getInitialState(): Promise<InitialState> {
         // Fetch admin info
         let adminInfo;
         try {
-          const response =
-            await AccountServiceService.accountServiceGetAdminMe();
-          if (response.code === 0 && response.data) {
-            adminInfo = response.data;
+          const response = await accountServiceGetAdminMe();
+          if (response.data?.code === 0 && response.data?.data) {
+            adminInfo = response.data.data;
           }
         } catch (error) {
           console.error('Failed to fetch admin info:', error);
@@ -149,42 +145,71 @@ export const layout: RunTimeLayoutConfig = ({
   initialState,
   setInitialState,
 }) => {
+  // Logout handler
+  const handleLogout = async () => {
+    // Clear session security
+    SessionSecurityManager.clearSession();
+    SessionActivityTracker.stop();
+
+    // Clear auth
+    clearAuth();
+    setInitialState({ ...initialState, currentUser: undefined });
+    message.success('Logged out successfully');
+    history.push('/login');
+  };
+
+  // Dropdown menu items
+  const menuItems: MenuProps['items'] = [
+    {
+      key: 'settings',
+      icon: <SettingOutlined />,
+      label: 'Settings',
+      onClick: () => {
+        history.push('/settings');
+      },
+    },
+    {
+      type: 'divider',
+    },
+    {
+      key: 'logout',
+      icon: <LogoutOutlined />,
+      label: 'Log Out',
+      onClick: handleLogout,
+    },
+  ];
+
   return {
     logo: logo,
     menu: {
       locale: true,
     },
     layout: 'mix',
-    // Show user info in the header
+    // Show user info in the header with dropdown menu
     avatarProps: {
-      src: 'https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png',
       title: initialState?.currentUser?.adminInfo?.name || 'Admin',
-      render: (_, avatarChildren) => {
-        return avatarChildren;
-      },
-    },
-    // Logout action
-    actionsRender: () => {
-      if (initialState?.currentUser) {
-        return [
-          <LogoutOutlined
-            key="logout"
-            onClick={async () => {
-              // Clear session security
-              SessionSecurityManager.clearSession();
-              SessionActivityTracker.stop();
+      render: () => {
+        const userName = initialState?.currentUser?.adminInfo?.name || 'Admin';
+        const userInitial = userName.charAt(0).toUpperCase();
 
-              // Clear auth
-              clearAuth();
-              setInitialState({ ...initialState, currentUser: undefined });
-              message.success('Logged out successfully');
-              history.push('/login');
-            }}
-            style={{ cursor: 'pointer', fontSize: '16px' }}
-          />,
-        ];
-      }
-      return [];
+        return (
+          <Dropdown menu={{ items: menuItems }} placement="bottomRight">
+            <span
+              style={{
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+              }}
+            >
+              <Avatar style={{ backgroundColor: '#1890ff' }}>
+                {userInitial}
+              </Avatar>
+              <span>{userName}</span>
+            </span>
+          </Dropdown>
+        );
+      },
     },
     // Redirect to login if not authenticated
     onPageChange: () => {
@@ -210,14 +235,6 @@ export const request: RequestConfig = {
       const token = getToken();
       if (token && config.headers) {
         config.headers.Authorization = `Bearer ${token}`;
-      }
-
-      // Add CSRF token for non-GET requests
-      if (config.method && config.method.toUpperCase() !== 'GET') {
-        const csrfToken = require('./utils/csrf').getCSRFToken();
-        if (csrfToken && config.headers) {
-          config.headers['X-CSRF-Token'] = csrfToken;
-        }
       }
 
       // Update session activity
