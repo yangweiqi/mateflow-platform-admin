@@ -6,6 +6,24 @@
     "version": "0.0.1"
   },
   "paths": {
+    "/platform_admin_api/v1/account/me": {
+      "post": {
+        "tags": ["AccountService"],
+        "operationId": "AccountService_GetAdminMe",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetAdminRespBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/platform_admin_api/v1/account/refresh_token": {
       "post": {
         "tags": ["AccountService"],
@@ -420,6 +438,21 @@
           },
           "password": {
             "type": "string"
+          }
+        }
+      },
+      "GetAdminRespBody": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "msg": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/SuperAdminInfo"
           }
         }
       },

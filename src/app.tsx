@@ -2,6 +2,7 @@
 import logo from '@/assets/logo.png';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import LayoutWrapper from '@/components/LayoutWrapper';
+import { AccountServiceService } from '@/services';
 import { LogoutOutlined } from '@ant-design/icons';
 import type { RequestConfig, RunTimeLayoutConfig } from '@umijs/max';
 import { history } from '@umijs/max';
@@ -83,6 +84,13 @@ export interface InitialState {
   currentUser?: {
     token?: string;
     email?: string;
+    adminInfo?: {
+      id?: string;
+      name?: string;
+      email?: string;
+      created_at?: string;
+      updated_at?: string;
+    };
   };
   fetchUserInfo?: () => Promise<any>;
 }
@@ -96,9 +104,23 @@ export async function getInitialState(): Promise<InitialState> {
       if (isAuthenticated()) {
         const token = getToken();
         const email = getUserEmail();
+
+        // Fetch admin info
+        let adminInfo;
+        try {
+          const response =
+            await AccountServiceService.accountServiceGetAdminMe();
+          if (response.code === 0 && response.data) {
+            adminInfo = response.data;
+          }
+        } catch (error) {
+          console.error('Failed to fetch admin info:', error);
+        }
+
         return {
           token: token || undefined,
           email: email || undefined,
+          adminInfo: adminInfo || undefined,
         };
       }
       return undefined;
@@ -133,11 +155,10 @@ export const layout: RunTimeLayoutConfig = ({
       locale: true,
     },
     layout: 'mix',
-    title: 'Platform Admin',
     // Show user info in the header
     avatarProps: {
       src: 'https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png',
-      title: initialState?.currentUser?.email || 'Admin',
+      title: initialState?.currentUser?.adminInfo?.name || 'Admin',
       render: (_, avatarChildren) => {
         return avatarChildren;
       },

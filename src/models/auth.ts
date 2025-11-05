@@ -3,6 +3,7 @@
  */
 import { AccountServiceService } from '@/services';
 import type { SignInByEmailReqBody } from '@/services/models/SignInByEmailReqBody';
+import type { SuperAdminInfo } from '@/services/models/SuperAdminInfo';
 import {
   clearAuth,
   getRememberMe,
@@ -28,6 +29,7 @@ import { useEffect, useRef, useState } from 'react';
 export interface CurrentUser {
   email?: string;
   token?: string;
+  adminInfo?: SuperAdminInfo;
 }
 
 const MAX_SESSION_DURATION = 30 * 60 * 1000; // 30 minutes
@@ -194,6 +196,25 @@ export default function useAuthModel() {
   };
 
   /**
+   * Fetch current admin user information
+   */
+  const fetchAdminMe = async () => {
+    try {
+      const response = await AccountServiceService.accountServiceGetAdminMe();
+
+      if (response.code === 0 && response.data) {
+        return response.data;
+      }
+      return null;
+    } catch (error: any) {
+      console.error('Fetch admin info error:', error);
+      // Note: Error handling (401, 403, etc.) is done by OpenAPI error catching
+      // or can be wrapped with apiResponseHandler if needed
+      return null;
+    }
+  };
+
+  /**
    * Sign in with email and password
    */
   const signIn = async (
@@ -240,10 +261,14 @@ export default function useAuthModel() {
         // Create secure session
         await SessionSecurityManager.createSession();
 
+        // Fetch admin info after successful login
+        const adminInfo = await fetchAdminMe();
+
         // Update current user state
         setCurrentUser({
           email: credentials.email,
           token: response.data.token,
+          adminInfo: adminInfo || undefined,
         });
 
         // Start automatic refresh and session monitoring
@@ -324,7 +349,15 @@ export default function useAuthModel() {
 
       // Load email from storage
       const email = getUserEmail();
-      setCurrentUser({ token, email: email || undefined });
+
+      // Fetch admin info
+      const adminInfo = await fetchAdminMe();
+
+      setCurrentUser({
+        token,
+        email: email || undefined,
+        adminInfo: adminInfo || undefined,
+      });
 
       // Start timers if user is authenticated
       startAutoRefresh();
@@ -384,5 +417,6 @@ export default function useAuthModel() {
     extendSession,
     getSessionInfo,
     setShowTimeoutWarning,
+    fetchAdminMe,
   };
 }

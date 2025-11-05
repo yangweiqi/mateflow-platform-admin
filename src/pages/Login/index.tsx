@@ -11,7 +11,7 @@ import { useEffect, useRef, useState } from 'react';
 import styles from './index.less';
 
 export default function LoginPage() {
-  const { signIn, loading } = useModel('auth');
+  const { signIn, loading, currentUser } = useModel('auth');
   const { initialState, setInitialState } = useModel('@@initialState');
   const [form] = Form.useForm();
   const [isLocked, setIsLocked] = useState(false);
@@ -120,10 +120,10 @@ export default function LoginPage() {
     );
 
     if (success) {
-      // Update initialState with user info
+      // Update initialState with user info (includes admin info from auth model)
       await setInitialState({
         ...initialState,
-        currentUser: {
+        currentUser: currentUser || {
           email,
           token:
             (await import('@/utils/auth').then((mod) => mod.getToken())) ||

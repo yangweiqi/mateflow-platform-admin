@@ -12,6 +12,7 @@ export type { BaseIDRespBody } from './models/BaseIDRespBody';
 export type { BaseMsgRespBody } from './models/BaseMsgRespBody';
 export type { CreatePresetThemeReqBody } from './models/CreatePresetThemeReqBody';
 export type { CreateSuperAdminReqBody } from './models/CreateSuperAdminReqBody';
+export type { GetAdminRespBody } from './models/GetAdminRespBody';
 export type { GetPresetThemeData } from './models/GetPresetThemeData';
 export type { GetPresetThemeRespBody } from './models/GetPresetThemeRespBody';
 export type { GetSuperAdminData } from './models/GetSuperAdminData';
