@@ -15,6 +15,8 @@ import type {
   AccountServiceSignOutResponses,
   AccountServiceUpdateProfileData,
   AccountServiceUpdateProfileResponses,
+  CreatorServiceListCreatorsData,
+  CreatorServiceListCreatorsResponses,
   PresetThemeServiceCreatePresetThemeData,
   PresetThemeServiceCreatePresetThemeResponses,
   PresetThemeServiceDeletePresetThemeData,
@@ -25,6 +27,8 @@ import type {
   PresetThemeServiceListPresetThemesResponses,
   PresetThemeServiceUpdatePresetThemeData,
   PresetThemeServiceUpdatePresetThemeResponses,
+  SiteServiceListSitesData,
+  SiteServiceListSitesResponses,
   SuperAdminServiceCreateSuperAdminData,
   SuperAdminServiceCreateSuperAdminResponses,
   SuperAdminServiceDeleteSuperAdminData,
@@ -152,6 +156,25 @@ export const accountServiceUpdateProfile = <
   });
 };
 
+export const creatorServiceListCreators = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<CreatorServiceListCreatorsData, ThrowOnError>,
+) => {
+  return (options?.client ?? client).post<
+    CreatorServiceListCreatorsResponses,
+    unknown,
+    ThrowOnError
+  >({
+    url: '/platform_admin_api/v1/creator/list',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+};
+
 export const presetThemeServiceCreatePresetTheme = <
   ThrowOnError extends boolean = false,
 >(
@@ -239,6 +262,23 @@ export const presetThemeServiceUpdatePresetTheme = <
     ThrowOnError
   >({
     url: '/platform_admin_api/v1/preset_theme/update',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+};
+
+export const siteServiceListSites = <ThrowOnError extends boolean = false>(
+  options?: Options<SiteServiceListSitesData, ThrowOnError>,
+) => {
+  return (options?.client ?? client).post<
+    SiteServiceListSitesResponses,
+    unknown,
+    ThrowOnError
+  >({
+    url: '/platform_admin_api/v1/site/list',
     ...options,
     headers: {
       'Content-Type': 'application/json',

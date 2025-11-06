@@ -42,6 +42,16 @@ export type CreateSuperAdminReqBody = {
   password?: string;
 };
 
+export type CreatorInfo = {
+  id?: string;
+  display_name?: string;
+  email?: string;
+  avatar?: string;
+  status?: string;
+  created_at?: string;
+  updated_at?: string;
+};
+
 export type GetAdminRespBody = {
   code?: number;
   msg?: string;
@@ -72,6 +82,24 @@ export type IdReqBody = {
   id?: string;
 };
 
+export type ListCreatorsData = {
+  creators?: Array<CreatorInfo>;
+  total?: number;
+};
+
+export type ListCreatorsReqBody = {
+  page?: number;
+  page_size?: number;
+  display_name?: string;
+  email?: string;
+};
+
+export type ListCreatorsRespBody = {
+  code?: number;
+  msg?: string;
+  data?: ListCreatorsData;
+};
+
 export type ListPresetThemesData = {
   preset_themes?: Array<PresetThemeInfo>;
   total?: number;
@@ -87,6 +115,25 @@ export type ListPresetThemesRespBody = {
   code?: number;
   msg?: string;
   data?: ListPresetThemesData;
+};
+
+export type ListSitesData = {
+  sites?: Array<SiteInfo>;
+  total?: number;
+};
+
+export type ListSitesReqBody = {
+  page?: number;
+  page_size?: number;
+  name?: string;
+  description?: string;
+  subdomain?: string;
+};
+
+export type ListSitesRespBody = {
+  code?: number;
+  msg?: string;
+  data?: ListSitesData;
 };
 
 export type ListSuperAdminData = {
@@ -133,6 +180,31 @@ export type SignInSuccessRespBody = {
   code?: number;
   msg?: string;
   data?: TokenInfo;
+};
+
+export type SiteInfo = {
+  id?: string;
+  name?: string;
+  description?: string;
+  subdomain?: string;
+  custom_domain?: string;
+  status?: string;
+  is_private?: boolean;
+  white_label?: boolean;
+  max_members?: number;
+  stat?: SiteStatInfo;
+  creator_id?: string;
+  created_at?: string;
+  updated_at?: string;
+};
+
+export type SiteStatInfo = {
+  member_count?: number;
+  post_count?: number;
+  blog_count?: number;
+  event_count?: number;
+  course_count?: number;
+  space_count?: number;
 };
 
 export type SuperAdminInfo = {
@@ -326,6 +398,23 @@ export type AccountServiceUpdateProfileResponses = {
 export type AccountServiceUpdateProfileResponse =
   AccountServiceUpdateProfileResponses[keyof AccountServiceUpdateProfileResponses];
 
+export type CreatorServiceListCreatorsData = {
+  body?: ListCreatorsReqBody;
+  path?: never;
+  query?: never;
+  url: '/platform_admin_api/v1/creator/list';
+};
+
+export type CreatorServiceListCreatorsResponses = {
+  /**
+   * Successful response
+   */
+  200: ListCreatorsRespBody;
+};
+
+export type CreatorServiceListCreatorsResponse =
+  CreatorServiceListCreatorsResponses[keyof CreatorServiceListCreatorsResponses];
+
 export type PresetThemeServiceCreatePresetThemeData = {
   body?: CreatePresetThemeReqBody;
   path?: never;
@@ -410,6 +499,23 @@ export type PresetThemeServiceUpdatePresetThemeResponses = {
 
 export type PresetThemeServiceUpdatePresetThemeResponse =
   PresetThemeServiceUpdatePresetThemeResponses[keyof PresetThemeServiceUpdatePresetThemeResponses];
+
+export type SiteServiceListSitesData = {
+  body?: ListSitesReqBody;
+  path?: never;
+  query?: never;
+  url: '/platform_admin_api/v1/site/list';
+};
+
+export type SiteServiceListSitesResponses = {
+  /**
+   * Successful response
+   */
+  200: ListSitesRespBody;
+};
+
+export type SiteServiceListSitesResponse =
+  SiteServiceListSitesResponses[keyof SiteServiceListSitesResponses];
 
 export type SuperAdminServiceCreateSuperAdminData = {
   body?: CreateSuperAdminReqBody;

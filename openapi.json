@@ -141,6 +141,33 @@
         }
       }
     },
+    "/platform_admin_api/v1/creator/list": {
+      "post": {
+        "tags": ["CreatorService"],
+        "operationId": "CreatorService_ListCreators",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ListCreatorsReqBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListCreatorsRespBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/platform_admin_api/v1/preset_theme/create": {
       "post": {
         "tags": ["PresetThemeService"],
@@ -269,6 +296,33 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/BaseMsgRespBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/platform_admin_api/v1/site/list": {
+      "post": {
+        "tags": ["SiteService"],
+        "operationId": "SiteService_ListSites",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ListSitesReqBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListSitesRespBody"
                 }
               }
             }
@@ -506,6 +560,32 @@
           }
         }
       },
+      "CreatorInfo": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "display_name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "avatar": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string"
+          }
+        }
+      },
       "GetAdminRespBody": {
         "type": "object",
         "properties": {
@@ -575,6 +655,55 @@
           }
         }
       },
+      "ListCreatorsData": {
+        "type": "object",
+        "properties": {
+          "creators": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreatorInfo"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "ListCreatorsReqBody": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "page_size": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "display_name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          }
+        }
+      },
+      "ListCreatorsRespBody": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "msg": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ListCreatorsData"
+          }
+        }
+      },
       "ListPresetThemesData": {
         "type": "object",
         "properties": {
@@ -621,6 +750,58 @@
           }
         }
       },
+      "ListSitesData": {
+        "type": "object",
+        "properties": {
+          "sites": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SiteInfo"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "ListSitesReqBody": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "page_size": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "subdomain": {
+            "type": "string"
+          }
+        }
+      },
+      "ListSitesRespBody": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "msg": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ListSitesData"
+          }
+        }
+      },
       "ListSuperAdminData": {
         "type": "object",
         "properties": {
@@ -641,11 +822,11 @@
         "properties": {
           "page": {
             "type": "integer",
-            "format": "int64"
+            "format": "int32"
           },
           "page_size": {
             "type": "integer",
-            "format": "int64"
+            "format": "int32"
           },
           "name": {
             "type": "string"
@@ -740,6 +921,80 @@
           },
           "data": {
             "$ref": "#/components/schemas/TokenInfo"
+          }
+        }
+      },
+      "SiteInfo": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "subdomain": {
+            "type": "string"
+          },
+          "custom_domain": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "is_private": {
+            "type": "boolean"
+          },
+          "white_label": {
+            "type": "boolean"
+          },
+          "max_members": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "stat": {
+            "$ref": "#/components/schemas/SiteStatInfo"
+          },
+          "creator_id": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string"
+          }
+        }
+      },
+      "SiteStatInfo": {
+        "type": "object",
+        "properties": {
+          "member_count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "post_count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "blog_count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "event_count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "course_count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "space_count": {
+            "type": "integer",
+            "format": "int64"
           }
         }
       },
@@ -989,7 +1244,13 @@
       "name": "AccountService"
     },
     {
+      "name": "CreatorService"
+    },
+    {
       "name": "PresetThemeService"
+    },
+    {
+      "name": "SiteService"
     },
     {
       "name": "SuperAdminService"

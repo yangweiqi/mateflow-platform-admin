@@ -34,6 +34,26 @@ export default defineConfig({
       component: './Home',
       access: 'isAuthenticated',
     },
+    // Sites
+    {
+      name: 'Sites',
+      path: '/sites',
+      access: 'isAuthenticated',
+      routes: [
+        {
+          name: 'Creators',
+          path: '/sites/creators',
+          component: './Sites/Creators',
+          access: 'isAuthenticated',
+        },
+        {
+          name: 'Sites',
+          path: '/sites/sites',
+          component: './Sites/Sites',
+          access: 'isAuthenticated',
+        },
+      ],
+    },
     // System settings
     // submenu: Super Admin
     {
@@ -55,12 +75,12 @@ export default defineConfig({
         },
       ],
     },
-    {
-      name: 'Access',
-      path: '/access',
-      component: './Access',
-      access: 'isAuthenticated',
-    },
+    // {
+    //   name: 'Access',
+    //   path: '/access',
+    //   component: './Access',
+    //   access: 'isAuthenticated',
+    // },
     // {
     //   name: 'CRUD Demo',
     //   path: '/table',

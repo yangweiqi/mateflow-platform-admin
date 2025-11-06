@@ -1,12 +1,12 @@
-import Guide from '@/components/Guide';
-import { trim } from '@/utils/format';
+// import Guide from '@/components/Guide';
+// import { trim } from '@/utils/format';
 import { PageContainer } from '@ant-design/pro-components';
 import { useModel } from '@umijs/max';
 import { Alert, Card, Descriptions } from 'antd';
 import styles from './index.less';
 
 const HomePage: React.FC = () => {
-  const { name } = useModel('global');
+  // const { name } = useModel('global');
   const { initialState } = useModel('@@initialState');
   const { currentUser } = useModel('auth');
 
@@ -33,7 +33,6 @@ const HomePage: React.FC = () => {
             </Descriptions.Item>
           </Descriptions>
         </Card>
-        <Guide name={trim(name)} />
       </div>
     </PageContainer>
   );

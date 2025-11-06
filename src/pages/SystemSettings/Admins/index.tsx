@@ -244,7 +244,7 @@ const Admins: React.FC = () => {
   return (
     <PageContainer
       header={{
-        title: 'Admin Management',
+        title: 'Admin',
       }}
     >
       <ProTable<SuperAdminInfo>
